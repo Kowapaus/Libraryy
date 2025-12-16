@@ -350,13 +350,13 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2089193358}
   - {fileID: 1776371491}
   - {fileID: 435866349}
   - {fileID: 1460242427}
-  - {fileID: 375713829}
   - {fileID: 2108171810}
+  - {fileID: 375713829}
   - {fileID: 2005112300}
+  - {fileID: 2089193358}
   - {fileID: 1222981508}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -878,7 +878,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.392}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -3282,8 +3282,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryManager
   content: {fileID: 1090177831}
-  bookItemPrefab: {fileID: 7663424050995818338, guid: 4c4895754ee97964796610e3424f6ff0, type: 3}
-  inventory: []
+  bookItemPrefab: {fileID: 4474682264090792972, guid: 4c4895754ee97964796610e3424f6ff0, type: 3}
 --- !u!1 &2089193357
 GameObject:
   m_ObjectHideFlags: 0
@@ -3294,7 +3293,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2089193358}
   - component: {fileID: 2089193359}
-  - component: {fileID: 2089193360}
   m_Layer: 5
   m_Name: Manager shop
   m_TagString: Untagged
@@ -3334,43 +3332,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BookListManager
   content: {fileID: 928402963}
-  bookItemPrefab: {fileID: 7663424050995818338, guid: 4c4895754ee97964796610e3424f6ff0, type: 3}
+  bookItemPrefab: {fileID: 4474682264090792972, guid: 4c4895754ee97964796610e3424f6ff0, type: 3}
   messageText: {fileID: 1222981509}
   balanceText: {fileID: 240234759}
   inventoryManager: {fileID: 2005112301}
-  books:
-  - title: "C# \u0434\u043B\u044F \u043D\u043E\u0432\u0438\u0447\u043A\u043E\u0432"
-    price: 500
-  - title: "\u0418\u0441\u043A\u0443\u0441\u0441\u0442\u0432\u043E \u0413\u0435\u0439\u043C\u0434\u0435\u0432\u0430"
-    price: 300
-  - title: "Python \u0434\u043B\u044F \u043D\u043E\u0432\u0438\u0447\u043A\u043E\u0432"
-    price: 225
-  - title: "\u0421\u0435\u043A\u0440\u0435\u0442\u044B \u0430\u043B\u0433\u043E\u0440\u0438\u0442\u043C\u043E\u0432"
-    price: 600
-  - title: "\u0412\u043E\u0439\u043D\u0430 \u0438 \u043C\u0438\u0440 "
-    price: 900
-  - title: "\u0427\u0442\u043E \u0442\u0430\u043A\u043E\u0435 \u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440"
-    price: 1000
-  - title: "\u0412\u0441\u0451 \u043E \u0442\u0435\u043B\u0435\u0444\u043E\u043D\u0435"
-    price: 230
-  - title: "\u0423\u0441\u043F\u0435\u0448\u043D\u044B\u0439 \u0443\u0441\u043F\u0435\u0445"
-    price: 800
-  - title: "\u041F\u0440\u0430\u0432\u0438\u043B\u0430 \u043E\u0445\u043E\u0442\u044B"
-    price: 500
+  books: []
   playerBalance: 3000
---- !u!114 &2089193360
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2089193357}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0230252a97afcf4f9a2b4ed00417406, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIVisualizerDebug
-  content: {fileID: 928402963}
 --- !u!1 &2108171809
 GameObject:
   m_ObjectHideFlags: 0
@@ -3410,7 +3377,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 521.92, y: 850.15}
+  m_AnchoredPosition: {x: 1398.1, y: -37.873}
   m_SizeDelta: {x: 876.2, y: 812.28}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2108171811
@@ -3495,7 +3462,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InventoryPanelController
   panel: {fileID: 2108171810}
   slideTime: 0.3
-  hiddenPosition: {x: 521.92, y: 850.15}
+  hiddenPosition: {x: 1398.1, y: -37.873}
   shownPosition: {x: 521.91, y: -37.873}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

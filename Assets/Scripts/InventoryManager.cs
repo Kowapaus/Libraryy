@@ -1,69 +1,104 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class InventoryManager : MonoBehaviour
 {
-    public RectTransform content;
-    public GameObject bookItemPrefab;
-    public List<Book> inventory = new List<Book>();
+    private const float SELL_REFUND_PERCENT = 0.5f;
 
-    void Start()
+    [Header("UI")]
+    [SerializeField] private RectTransform content;
+    [SerializeField] private BookItemUI bookItemPrefab;
+
+    private readonly List<Book> inventory = new();
+    private readonly List<BookItemUI> spawnedItems = new();
+
+    private BookListManager shop;
+
+    public IReadOnlyList<Book> Inventory => inventory;
+
+    private void Awake()
+    {
+        shop = FindFirstObjectByType<BookListManager>();
+    }
+
+    private void Start()
     {
         Populate();
     }
 
-    public void Populate()
-    {
-        if (content == null || bookItemPrefab == null)
-        {
-            Debug.LogError("InventoryManager: Content или Prefab не назначены!");
-            return;
-        }
-
-        foreach (Transform t in content) Destroy(t.gameObject);
-
-        foreach (var b in inventory)
-        {
-            var go = Instantiate(bookItemPrefab, content);
-            var ui = go.GetComponent<BookItemUI>();
-            if (ui != null)
-            {
-                ui.SetupInventory(b, OnSell);
-            }
-        }
-
-        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(content);
-    }
+    #region Inventory Logic
 
     public void AddBook(Book book)
     {
-        if (book == null) return;
+        if (book == null)
+            return;
 
-     
-        Book newBook = new Book { title = book.title, price = book.price };
-        inventory.Add(newBook);
+        // создаём копию, чтобы покупки были независимыми
+        inventory.Add(new Book
+        {
+            Title = book.Title,
+            Price = book.Price
+        });
+
         Populate();
     }
 
-    public void OnSell(Book book, GameObject itemGO)
+    public void SetInventory(List<Book> books)
     {
-        if (book == null) return;
-
-        float refund = book.price * 0.5f;
-
-        var store = FindFirstObjectByType<BookListManager>();
-        if (store != null)
-        {
-            store.AddToBalance(refund, $"Продано: {book.title} (+{refund:0.00})");
-        }
-        else
-        {
-            Debug.LogWarning("InventoryManager: BookListManager не найден — возврат не выполнен.");
-        }
-
-        if (inventory.Contains(book)) inventory.Remove(book);
-        if (itemGO != null) Destroy(itemGO);
-
-        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+        inventory.Clear();
+        inventory.AddRange(books);
+        Populate();
     }
+
+    public void Clear()
+    {
+        inventory.Clear();
+        ClearItems();
+    }
+
+    #endregion
+
+    #region UI
+
+    private void Populate()
+    {
+        ClearItems();
+
+        foreach (var book in inventory)
+        {
+            var item = Instantiate(bookItemPrefab, content);
+            item.Setup(book, isShop: false);
+            item.SellClicked += OnSellClicked;
+
+            spawnedItems.Add(item);
+        }
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+    }
+
+    private void ClearItems()
+    {
+        foreach (var item in spawnedItems)
+        {
+            if (item != null)
+                Destroy(item.gameObject);
+        }
+
+        spawnedItems.Clear();
+    }
+
+    private void OnSellClicked(Book book)
+    {
+        if (!inventory.Remove(book))
+            return;
+
+        float refund = book.Price * SELL_REFUND_PERCENT;
+
+        shop.AddToBalance(refund, $"Продано: {book.Title} (+{refund:0.00})");
+
+        Populate();
+    }
+
+    #endregion
 }

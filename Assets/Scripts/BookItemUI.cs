@@ -5,48 +5,32 @@ using System;
 
 public class BookItemUI : MonoBehaviour
 {
-    public TextMeshProUGUI titleText;
-    public TextMeshProUGUI priceText;
-    public Button buyButton;
-    public Button sellButton;
+    [SerializeField] private TextMeshProUGUI titleText;
+    [SerializeField] private TextMeshProUGUI priceText;
+    [SerializeField] private Button buyButton;
+    [SerializeField] private Button sellButton;
 
     private Book book;
-    private Action<Book, GameObject> onBuy;
-    private Action<Book, GameObject> onSell;
 
-    public void Setup(Book b, Action<Book, GameObject> onBuyCallback)
+    public event Action<Book> BuyClicked;
+    public event Action<Book> SellClicked;
+
+    public void Setup(Book book, bool isShop)
     {
-        book = b;
-        onBuy = onBuyCallback;
+        this.book = book;
 
-        if (titleText != null) titleText.text = b.title;
-        if (priceText != null) priceText.text = b.price.ToString("0.00");
+        titleText.text = book.Title;
+        priceText.text = book.Price.ToString("0.00");
 
-        if (buyButton != null)
-        {
-            buyButton.gameObject.SetActive(true);
-            buyButton.onClick.RemoveAllListeners();
-            buyButton.onClick.AddListener(() => onBuy?.Invoke(book, gameObject));
-        }
+        buyButton.gameObject.SetActive(isShop);
+        sellButton.gameObject.SetActive(!isShop);
 
-        if (sellButton != null) sellButton.gameObject.SetActive(false);
-    }
+        buyButton.onClick.RemoveAllListeners();
+        sellButton.onClick.RemoveAllListeners();
 
-    public void SetupInventory(Book b, Action<Book, GameObject> onSellCallback)
-    {
-        book = b;
-        onSell = onSellCallback;
-
-        if (titleText != null) titleText.text = b.title;
-        if (priceText != null) priceText.text = b.price.ToString("0.00");
-
-        if (buyButton != null) buyButton.gameObject.SetActive(false);
-
-        if (sellButton != null)
-        {
-            sellButton.gameObject.SetActive(true);
-            sellButton.onClick.RemoveAllListeners();
-            sellButton.onClick.AddListener(() => onSell?.Invoke(book, gameObject));
-        }
+        if (isShop)
+            buyButton.onClick.AddListener(() => BuyClicked?.Invoke(book));
+        else
+            sellButton.onClick.AddListener(() => SellClicked?.Invoke(book));
     }
 }

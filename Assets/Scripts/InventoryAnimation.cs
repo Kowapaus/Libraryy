@@ -1,29 +1,37 @@
 using UnityEngine;
 using System.Collections;
 
-public class InventoryPanelController : MonoBehaviour
+public class InventoryAnimation : MonoBehaviour
 {
-    public RectTransform panel;       
-    public float slideTime = 0.3f;    
-    public Vector2 hiddenPosition;     
-    public Vector2 shownPosition;    
+    [Header("Panel")]
+    [SerializeField] private RectTransform panel;
 
-    private bool isShown = false;
+    [Header("Animation")]
+    [SerializeField] private float slideTime = 0.3f;
+    [SerializeField] private Vector2 hiddenPosition;
+    [SerializeField] private Vector2 shownPosition;
 
-    void Start()
+    private bool isShown;
+    private Coroutine slideCoroutine;
+
+    private void Awake()
     {
         if (panel != null)
-            panel.anchoredPosition = hiddenPosition; 
+            panel.anchoredPosition = hiddenPosition;
     }
 
     public void ToggleInventory()
     {
-        StopAllCoroutines();
-        StartCoroutine(SlidePanel(isShown ? hiddenPosition : shownPosition));
+        Vector2 targetPosition = isShown ? hiddenPosition : shownPosition;
         isShown = !isShown;
+
+        if (slideCoroutine != null)
+            StopCoroutine(slideCoroutine);
+
+        slideCoroutine = StartCoroutine(SlideRoutine(targetPosition));
     }
 
-    private IEnumerator SlidePanel(Vector2 target)
+    private IEnumerator SlideRoutine(Vector2 target)
     {
         Vector2 start = panel.anchoredPosition;
         float elapsed = 0f;
@@ -36,5 +44,6 @@ public class InventoryPanelController : MonoBehaviour
         }
 
         panel.anchoredPosition = target;
+        slideCoroutine = null;
     }
 }
