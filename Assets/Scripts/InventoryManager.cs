@@ -31,12 +31,13 @@ public class InventoryManager : MonoBehaviour
     }
 
     #region Inventory Logic
+
     public void AddBook(Book book)
     {
         if (book == null)
             return;
 
-        // Store reference to the ScriptableObject; duplicates are allowed
+        // Храним ссылку на ScriptableObject; дубликаты допустимы
         inventory.Add(book);
 
         Populate();
@@ -54,9 +55,11 @@ public class InventoryManager : MonoBehaviour
         inventory.Clear();
         ClearItems();
     }
+
     #endregion
 
     #region UI
+
     private void Populate()
     {
         ClearItems();
@@ -101,5 +104,6 @@ public class InventoryManager : MonoBehaviour
 
         Populate();
     }
+
     #endregion
 }

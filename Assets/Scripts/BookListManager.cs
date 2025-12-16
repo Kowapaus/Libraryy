@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -29,7 +28,7 @@ public class BookListManager : MonoBehaviour
     private Coroutine messageCoroutine;
 
     private string SaveFilePath =>
-        Path.Combine(Application.persistentDataPath, "player_profile.dat");
+        Path.Combine(Application.persistentDataPath, "player_profile.json");
 
     private void Start()
     {
@@ -39,12 +38,16 @@ public class BookListManager : MonoBehaviour
     }
 
     #region Shop UI
+
     private void Populate()
     {
         ClearItems();
 
         foreach (var book in books)
         {
+            if (book == null)
+                continue;
+
             var item = Instantiate(bookItemPrefab, content);
             item.Setup(book, isShop: true);
             item.BuyClicked += OnBuyClicked;
@@ -83,9 +86,11 @@ public class BookListManager : MonoBehaviour
         inventoryManager.AddBook(book);
         ShowMessage($"Куплено: {book.Title}");
     }
+
     #endregion
 
     #region Balance & Messages
+
     public void AddToBalance(float amount, string message = null)
     {
         playerBalance += amount;
@@ -117,9 +122,11 @@ public class BookListManager : MonoBehaviour
     {
         balanceText.text = $"Баланс: {playerBalance:0.00}";
     }
+
     #endregion
 
     #region Save / Load
+
     public void SaveProfile()
     {
         try
@@ -133,9 +140,8 @@ public class BookListManager : MonoBehaviour
                     .ToList()
             };
 
-            var formatter = new BinaryFormatter();
-            using var file = File.Open(SaveFilePath, FileMode.Create);
-            formatter.Serialize(file, data);
+            var json = JsonUtility.ToJson(data);
+            File.WriteAllText(SaveFilePath, json);
 
             ShowMessage("Профиль сохранён");
         }
@@ -155,9 +161,10 @@ public class BookListManager : MonoBehaviour
 
         try
         {
-            var formatter = new BinaryFormatter();
-            using var file = File.Open(SaveFilePath, FileMode.Open);
-            var data = (SaveData)formatter.Deserialize(file);
+            var json = File.ReadAllText(SaveFilePath);
+            var data = JsonUtility.FromJson<SaveData>(json);
+            if (data == null)
+                throw new InvalidDataException("Save data is null");
 
             playerBalance = data.PlayerBalance;
             var loadedBooks = RebuildInventory(data.InventoryIds);
@@ -180,7 +187,7 @@ public class BookListManager : MonoBehaviour
         var result = new List<Book>();
         foreach (var title in inventoryIds)
         {
-            var match = books.FirstOrDefault(b => b.Title == title);
+            var match = books.FirstOrDefault(b => b != null && b.Title == title);
             if (match != null)
                 result.Add(match);
         }
@@ -196,5 +203,6 @@ public class BookListManager : MonoBehaviour
         UpdateBalanceText();
         ShowMessage(messageOverride);
     }
+
     #endregion
 }
