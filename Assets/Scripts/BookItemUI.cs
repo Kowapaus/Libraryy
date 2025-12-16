@@ -10,14 +10,13 @@ public class BookItemUI : MonoBehaviour
     [SerializeField] private Button buyButton;
     [SerializeField] private Button sellButton;
 
-    private Book book;
-
     public event Action<Book> BuyClicked;
     public event Action<Book> SellClicked;
 
     public void Setup(Book book, bool isShop)
     {
-        this.book = book;
+        if (book == null)
+            return;
 
         titleText.text = book.Title;
         priceText.text = book.Price.ToString("0.00");
@@ -32,5 +31,14 @@ public class BookItemUI : MonoBehaviour
             buyButton.onClick.AddListener(() => BuyClicked?.Invoke(book));
         else
             sellButton.onClick.AddListener(() => SellClicked?.Invoke(book));
+    }
+
+    private void OnDestroy()
+    {
+        if (buyButton != null)
+            buyButton.onClick.RemoveAllListeners();
+
+        if (sellButton != null)
+            sellButton.onClick.RemoveAllListeners();
     }
 }

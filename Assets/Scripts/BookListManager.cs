@@ -2,12 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ShopManager : MonoBehaviour
+public class BookListManager : MonoBehaviour
 {
+    private const float DefaultBalance = 3000f;
+    private const float MessageDuration = 2f;
+
     [Header("UI")]
     [SerializeField] private RectTransform content;
     [SerializeField] private BookItemUI bookItemPrefab;
@@ -19,7 +23,7 @@ public class ShopManager : MonoBehaviour
 
     [Header("Data")]
     [SerializeField] private List<Book> books = new();
-    [SerializeField] private float playerBalance = 50f;
+    [SerializeField] private float playerBalance = DefaultBalance;
 
     private readonly List<BookItemUI> spawnedItems = new();
     private Coroutine messageCoroutine;
@@ -35,7 +39,6 @@ public class ShopManager : MonoBehaviour
     }
 
     #region Shop UI
-
     private void Populate()
     {
         ClearItems();
@@ -57,7 +60,10 @@ public class ShopManager : MonoBehaviour
         foreach (var item in spawnedItems)
         {
             if (item != null)
+            {
+                item.BuyClicked -= OnBuyClicked;
                 Destroy(item.gameObject);
+            }
         }
 
         spawnedItems.Clear();
@@ -77,11 +83,9 @@ public class ShopManager : MonoBehaviour
         inventoryManager.AddBook(book);
         ShowMessage($"Куплено: {book.Title}");
     }
-
     #endregion
 
     #region Balance & Messages
-
     public void AddToBalance(float amount, string message = null)
     {
         playerBalance += amount;
@@ -104,7 +108,7 @@ public class ShopManager : MonoBehaviour
         messageText.text = text;
         messageText.gameObject.SetActive(true);
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(MessageDuration);
 
         messageText.gameObject.SetActive(false);
     }
@@ -113,11 +117,9 @@ public class ShopManager : MonoBehaviour
     {
         balanceText.text = $"Баланс: {playerBalance:0.00}";
     }
-
     #endregion
 
     #region Save / Load
-
     public void SaveProfile()
     {
         try
@@ -125,7 +127,10 @@ public class ShopManager : MonoBehaviour
             var data = new SaveData
             {
                 PlayerBalance = playerBalance,
-                Inventory = new List<Book>(inventoryManager.Inventory)
+                InventoryIds = inventoryManager.Inventory
+                    .Where(b => b != null)
+                    .Select(b => b.Title)
+                    .ToList()
             };
 
             var formatter = new BinaryFormatter();
@@ -144,7 +149,7 @@ public class ShopManager : MonoBehaviour
     {
         if (!File.Exists(SaveFilePath))
         {
-            CreateNewProfile();
+            CreateNewProfile("Нет сохранённого профиля. Создан новый.");
             return;
         }
 
@@ -155,26 +160,41 @@ public class ShopManager : MonoBehaviour
             var data = (SaveData)formatter.Deserialize(file);
 
             playerBalance = data.PlayerBalance;
-            inventoryManager.SetInventory(data.Inventory);
+            var loadedBooks = RebuildInventory(data.InventoryIds);
+            inventoryManager.SetInventory(loadedBooks);
 
             UpdateBalanceText();
             ShowMessage("Профиль загружен");
         }
         catch
         {
-            CreateNewProfile();
-            ShowMessage("Ошибка загрузки");
+            CreateNewProfile("Ошибка загрузки. Создан новый профиль.");
         }
     }
 
-    private void CreateNewProfile()
+    private List<Book> RebuildInventory(List<string> inventoryIds)
     {
-        playerBalance = 50f;
+        if (inventoryIds == null || inventoryIds.Count == 0)
+            return new List<Book>();
+
+        var result = new List<Book>();
+        foreach (var title in inventoryIds)
+        {
+            var match = books.FirstOrDefault(b => b.Title == title);
+            if (match != null)
+                result.Add(match);
+        }
+
+        return result;
+    }
+
+    private void CreateNewProfile(string messageOverride = "Создан новый профиль")
+    {
+        playerBalance = DefaultBalance;
         inventoryManager.Clear();
 
         UpdateBalanceText();
-        ShowMessage("Создан новый профиль");
+        ShowMessage(messageOverride);
     }
-
     #endregion
 }

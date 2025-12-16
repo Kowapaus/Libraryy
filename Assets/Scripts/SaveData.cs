@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 
+[Serializable]
 public class SaveData
 {
     public float PlayerBalance;
-    public List<Book> Inventory;
+    public List<string> InventoryIds;
 }

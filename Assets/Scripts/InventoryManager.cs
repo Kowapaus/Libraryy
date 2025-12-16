@@ -13,13 +13,16 @@ public class InventoryManager : MonoBehaviour
     private readonly List<Book> inventory = new();
     private readonly List<BookItemUI> spawnedItems = new();
 
-    private BookListManager shop;
+    [Header("References")]
+    [SerializeField] private ShopManager shop;
 
     public IReadOnlyList<Book> Inventory => inventory;
 
     private void Awake()
     {
-        shop = FindFirstObjectByType<BookListManager>();
+        // Fallback in case the reference is not set in the Inspector
+        if (shop == null)
+            shop = FindFirstObjectByType<ShopManager>();
     }
 
     private void Start()
@@ -28,18 +31,13 @@ public class InventoryManager : MonoBehaviour
     }
 
     #region Inventory Logic
-
     public void AddBook(Book book)
     {
         if (book == null)
             return;
 
-        // создаём копию, чтобы покупки были независимыми
-        inventory.Add(new Book
-        {
-            Title = book.Title,
-            Price = book.Price
-        });
+        // Store reference to the ScriptableObject; duplicates are allowed
+        inventory.Add(book);
 
         Populate();
     }
@@ -56,11 +54,9 @@ public class InventoryManager : MonoBehaviour
         inventory.Clear();
         ClearItems();
     }
-
     #endregion
 
     #region UI
-
     private void Populate()
     {
         ClearItems();
@@ -82,7 +78,10 @@ public class InventoryManager : MonoBehaviour
         foreach (var item in spawnedItems)
         {
             if (item != null)
+            {
+                item.SellClicked -= OnSellClicked;
                 Destroy(item.gameObject);
+            }
         }
 
         spawnedItems.Clear();
@@ -93,12 +92,14 @@ public class InventoryManager : MonoBehaviour
         if (!inventory.Remove(book))
             return;
 
+        if (shop == null)
+            return;
+
         float refund = book.Price * SELL_REFUND_PERCENT;
 
         shop.AddToBalance(refund, $"Продано: {book.Title} (+{refund:0.00})");
 
         Populate();
     }
-
     #endregion
 }

@@ -3283,6 +3283,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InventoryManager
   content: {fileID: 1090177831}
   bookItemPrefab: {fileID: 4474682264090792972, guid: 4c4895754ee97964796610e3424f6ff0, type: 3}
+  shop: {fileID: 2089193359}
 --- !u!1 &2089193357
 GameObject:
   m_ObjectHideFlags: 0
@@ -3336,7 +3337,12 @@ MonoBehaviour:
   messageText: {fileID: 1222981509}
   balanceText: {fileID: 240234759}
   inventoryManager: {fileID: 2005112301}
-  books: []
+  books:
+  - {fileID: 11400000, guid: 9eed51ba6b05522408e43ca3ebb81a6b, type: 2}
+  - {fileID: 11400000, guid: 63592560d5e9a1d4cbcd4af2a908dd69, type: 2}
+  - {fileID: 11400000, guid: d2d728b3fd1a4db4d8fedcbaa280af3a, type: 2}
+  - {fileID: 11400000, guid: 19884312e1a469a4381b0bc674157a69, type: 2}
+  - {fileID: 11400000, guid: bfad1d5d610b40e4e9055f0fc6fdd33c, type: 2}
   playerBalance: 3000
 --- !u!1 &2108171809
 GameObject:
